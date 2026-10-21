@@ -3,73 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Evaluasi Jaringan Berbasis CBT</title>
+    <title>Sistem Evaluasi CBT</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body { font-family: 'Inter', sans-serif; }
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #555; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
-    <div class="max-w-4xl mx-auto p-4 md:p-8">
-        <header class="mb-8 border-b border-slate-200 pb-4">
-            <h1 class="text-3xl font-bold text-slate-900">Platform Simulasi Uji Kompetensi TKJ</h1>
-            <p class="text-slate-600 mt-2">Arsitektur Modular: Frontend dinamis membaca data soal dari struktur JSON eksternal.</p>
-        </header>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800 min-h-screen">
+    
+    <!-- Top Navbar -->
+    <header class="glass-header sticky top-0 z-50 border-b border-slate-200 shadow-sm">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Platform Simulasi TKJ</h1>
+                <p class="text-xs font-medium text-slate-500 uppercase tracking-widest mt-0.5">Computer Based Test (CBT)</p>
+            </div>
+            <div class="hidden md:flex items-center gap-2 text-sm text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full font-medium">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                Sistem Aktif
+            </div>
+        </div>
+    </header>
 
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <main id="app-container">
             <!-- Loading Indicator -->
-            <div id="loading" class="text-center py-10 hidden">
-                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900 mx-auto"></div>
-                <p class="mt-4 text-slate-600">Mengambil paket soal dari server...</p>
+            <div id="loading" class="text-center py-20 hidden">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto"></div>
+                <p class="mt-6 text-slate-600 font-medium">Menyinkronkan basis data soal...</p>
             </div>
 
             <!-- Error Message -->
-            <div id="error-msg" class="hidden bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg mb-6"></div>
+            <div id="error-msg" class="hidden bg-red-50 border-l-4 border-red-500 p-6 rounded-r-xl shadow-sm mb-8"></div>
 
             <!-- Package Selection -->
-            <div id="package-list" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div id="package-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Dimuat oleh JS -->
             </div>
 
             <!-- Quiz Area -->
-            <div id="quiz-area" class="hidden bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <button onclick="backToMenu()" class="text-sm font-medium text-blue-600 hover:text-blue-800 mb-6 flex items-center gap-1">
-                    &larr; Kembali ke Indeks
-                </button>
-                <div class="mb-6 border-b border-slate-100 pb-4">
-                    <h2 id="quiz-title" class="text-2xl font-bold text-slate-800"></h2>
-                    <p id="quiz-desc" class="text-slate-500 mt-1"></p>
+            <div id="quiz-area" class="hidden bg-white p-8 sm:p-10 rounded-2xl shadow-lg border border-slate-100 relative overflow-hidden">
+                <!-- Decorative top bar -->
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="backToMenu()" class="text-sm font-semibold text-slate-500 hover:text-blue-600 flex items-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Daftar Paket
+                    </button>
+                    <span id="question-tracker" class="bg-blue-50 text-blue-700 font-bold text-xs px-3 py-1 rounded-full border border-blue-100"></span>
                 </div>
 
-                <div id="question-container" class="mb-8 min-h-[200px]"></div>
+                <div class="mb-6">
+                    <h2 id="quiz-title" class="text-3xl font-extrabold text-slate-900 tracking-tight"></h2>
+                    <p id="quiz-desc" class="text-slate-500 mt-2 text-sm leading-relaxed"></p>
+                </div>
 
-                <div class="flex justify-between items-center mt-6 border-t border-slate-100 pt-6">
-                    <button id="prev-btn" onclick="prevQuestion()" class="bg-slate-100 text-slate-700 font-medium px-5 py-2.5 rounded-lg hover:bg-slate-200 disabled:opacity-40 transition">Sebelumnya</button>
-                    <span id="question-tracker" class="font-semibold text-slate-500 text-sm tracking-wide"></span>
-                    <button id="next-btn" onclick="nextQuestion()" class="bg-slate-800 text-white font-medium px-5 py-2.5 rounded-lg shadow hover:bg-slate-700 transition">Selanjutnya</button>
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-100 rounded-full h-2 mb-8 overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+
+                <div id="question-container" class="mb-8 min-h-[250px]"></div>
+
+                <div class="flex justify-between items-center mt-8 border-t border-slate-100 pt-8">
+                    <button id="prev-btn" onclick="prevQuestion()" class="flex items-center gap-2 bg-white text-slate-700 font-semibold px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm">
+                        Sebelumnya
+                    </button>
+                    <button id="next-btn" onclick="nextQuestion()" class="flex items-center gap-2 bg-slate-900 text-white font-semibold px-8 py-3 rounded-xl shadow-md hover:bg-slate-800 hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                        Selanjutnya
+                    </button>
                 </div>
             </div>
 
             <!-- Result Area -->
-            <div id="result-area" class="hidden bg-white p-6 md:p-10 rounded-xl shadow-sm border border-slate-200 text-center">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
-                    <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <h2 class="text-3xl font-bold text-slate-800 mb-2">Selesai!</h2>
-                <p class="text-lg text-slate-600 mb-8">Anda telah menyelesaikan tes. Berikut adalah ringkasan teknis dari evaluasi ini.</p>
+            <div id="result-area" class="hidden bg-white p-8 md:p-12 rounded-2xl shadow-xl border border-slate-100 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-400 to-green-600"></div>
                 
-                <div class="inline-block bg-slate-50 border border-slate-200 rounded-xl px-10 py-6 mb-8">
-                    <p class="text-sm text-slate-500 uppercase tracking-widest font-semibold mb-1">Skor Total</p>
-                    <p class="text-5xl font-black text-slate-800"><span id="final-score" class="text-blue-600"></span><span class="text-2xl text-slate-400"> / <span id="max-score"></span></span></p>
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-green-50 rounded-full mb-6 border-4 border-green-100">
+                    <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">Evaluasi Selesai</h2>
+                <p class="text-slate-500 mb-10 max-w-lg mx-auto">Sistem telah merekam dan memvalidasi jawaban Anda. Berikut adalah ringkasan skor dan rincian analitis dari pengujian ini.</p>
+                
+                <div class="inline-flex flex-col items-center bg-gradient-to-b from-slate-50 to-white border border-slate-200 rounded-2xl px-16 py-8 mb-10 shadow-sm">
+                    <p class="text-sm text-slate-400 uppercase tracking-[0.2em] font-bold mb-2">Skor Akhir</p>
+                    <div class="flex items-baseline gap-2">
+                        <span id="final-score" class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600"></span>
+                        <span class="text-3xl font-bold text-slate-300">/</span>
+                        <span id="max-score" class="text-3xl font-bold text-slate-400"></span>
+                    </div>
                 </div>
 
-                <div id="review-container" class="mt-4 text-left custom-scrollbar"></div>
+                <div id="review-container" class="mt-4 text-left custom-scrollbar space-y-6"></div>
 
-                <div class="mt-10">
-                    <button onclick="backToMenu()" class="bg-slate-800 text-white font-medium px-8 py-3 rounded-lg shadow hover:bg-slate-700 transition">Kembali ke Daftar Paket</button>
+                <div class="mt-12 pt-8 border-t border-slate-100">
+                    <button onclick="backToMenu()" class="bg-slate-900 text-white font-semibold px-10 py-4 rounded-xl shadow-lg hover:bg-slate-800 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                        Selesaikan & Kembali ke Menu
+                    </button>
                 </div>
             </div>
         </main>
@@ -92,13 +130,20 @@
         async function initApp() {
             ui.loading.classList.remove('hidden');
             try {
-                // Fetch daftar paket (indeks logikal)
                 const res = await fetch('packages.json');
-                if (!res.ok) throw new Error('File packages.json tidak ditemukan atau terjadi masalah jaringan.');
+                if (!res.ok) throw new Error('Berkas packages.json tidak ditemukan.');
                 const packages = await res.json();
                 renderPackages(packages);
             } catch(e) {
-                ui.error.innerHTML = `<strong>Kegagalan Sinkronisasi:</strong> ${e.message}<br><span class="text-sm">Sistem ini menggunakan metode Fetch API yang mewajibkan lingkungan Web Server (HTTP/HTTPS) seperti Nginx, Apache, atau Uvicorn. Pastikan tidak dijalankan via protokol file://.</span>`;
+                ui.error.innerHTML = `
+                    <div class="flex gap-4 items-start">
+                        <svg class="w-6 h-6 text-red-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <div>
+                            <h3 class="font-bold text-red-800 text-lg">Akses File Ditolak (CORS Error)</h3>
+                            <p class="text-red-700 mt-1 leading-relaxed">Browser menolak akses lokal (file://). Anda perlu menjalankan web server HTTP. Buka terminal di folder web ini lalu jalankan perintah: <code class="bg-red-100 text-red-900 px-2 py-1 rounded font-mono text-sm mx-1">python3 -m http.server 8080</code>, kemudian buka localhost:8080 di browser.</p>
+                            <p class="text-sm text-red-600 mt-2">Detail error teknis: ${e.message}</p>
+                        </div>
+                    </div>`;
                 ui.error.classList.remove('hidden');
             } finally {
                 ui.loading.classList.add('hidden');
@@ -109,16 +154,26 @@
             ui.pkgList.innerHTML = '';
             packages.forEach(pkg => {
                 const card = document.createElement('div');
-                card.className = 'group bg-white p-6 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition cursor-pointer flex flex-col justify-between';
+                card.className = 'group relative bg-white p-8 rounded-2xl border border-slate-200 hover:border-blue-400 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between overflow-hidden';
+                card.onclick = () => loadPackage(pkg.file, pkg.title, pkg.description);
+                
                 card.innerHTML = `
-                    <div>
-                        <div class="text-xs font-bold tracking-wider text-slate-400 uppercase mb-2">\${pkg.id}</div>
-                        <h3 class="text-xl font-bold text-slate-800 group-hover:text-blue-700 transition">\${pkg.title}</h3>
-                        <p class="text-slate-600 mt-2 text-sm leading-relaxed">\${pkg.description}</p>
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                    <div class="relative z-10">
+                        <div class="inline-flex items-center gap-2 mb-4">
+                            <span class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors">\${pkg.id}</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors leading-tight mb-3">\${pkg.title}</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">\${pkg.description}</p>
                     </div>
-                    <div class="mt-6 border-t border-slate-100 pt-4 flex justify-between items-center text-sm font-medium text-slate-500">
-                        <span>\${pkg.questionCount} Soal</span>
-                        <button onclick="loadPackage('\${pkg.file}', '\${pkg.title}', '\${pkg.description}')" class="text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-4 py-2 rounded-lg">Mulai &rarr;</button>
+                    <div class="relative z-10 mt-8 flex justify-between items-center text-sm font-semibold text-slate-500">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            \${pkg.questionCount} Butir Soal
+                        </span>
+                        <span class="text-blue-600 font-bold group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                            Mulai Simulasi <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </span>
                     </div>
                 `;
                 ui.pkgList.appendChild(card);
@@ -132,7 +187,7 @@
 
             try {
                 const res = await fetch(filename);
-                if(!res.ok) throw new Error(`HTTP Error: \${res.status} pada file \${filename}`);
+                if(!res.ok) throw new Error(`Gagal memuat \${filename}. Status: \${res.status}`);
                 const data = await res.json();
 
                 ui.loading.classList.add('hidden');
@@ -149,7 +204,7 @@
                 renderQuestion();
             } catch(e) {
                 ui.loading.classList.add('hidden');
-                ui.error.innerHTML = `<strong>Gagal Memuat Paket:</strong> ${e.message}<br><span class="text-sm">Pastikan file \${filename} terkonfigurasi dengan benar di root directory server Anda.</span>`;
+                ui.error.innerHTML = `<strong>Koneksi Gagal:</strong> Tidak dapat membaca file soal. \${e.message}`;
                 ui.error.classList.remove('hidden');
                 ui.pkgList.classList.remove('hidden');
             }
@@ -159,46 +214,57 @@
             const container = document.getElementById('question-container');
             const q = currentQuestions[currentQuestionIndex];
 
+            // Update Progress Bar
+            const progressPercent = ((currentQuestionIndex) / currentQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = \`\${progressPercent}%\`;
+
             let optionsHtml = '';
             q.options.forEach((opt, idx) => {
                 const isChecked = userAnswers[currentQuestionIndex] === idx;
                 optionsHtml += `
-                    <label class="block p-4 border rounded-xl mb-3 cursor-pointer transition-colors \${isChecked ? 'bg-blue-50 border-blue-400 shadow-sm' : 'border-slate-200 hover:bg-slate-50'}">
-                        <div class="flex items-start gap-4">
-                            <div class="pt-1">
-                                <input type="radio" name="option" value="\${idx}" class="w-5 h-5 text-blue-600 focus:ring-blue-500" onchange="selectOption(\${idx})" \${isChecked ? 'checked' : ''}>
+                    <label for="opt-\${idx}" class="group block relative cursor-pointer mb-3">
+                        <input type="radio" name="option" id="opt-\${idx}" value="\${idx}" class="peer sr-only" onchange="selectOption(\${idx})" \${isChecked ? 'checked' : ''}>
+                        <div class="p-5 rounded-xl border-2 transition-all duration-200 
+                            \${isChecked ? 'bg-blue-50 border-blue-500 shadow-md' : 'bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50'}">
+                            <div class="flex items-center gap-4">
+                                <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors
+                                    \${isChecked ? 'border-blue-600' : 'border-slate-300 group-hover:border-blue-400'}">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-blue-600 transition-transform \${isChecked ? 'scale-100' : 'scale-0'}"></div>
+                                </div>
+                                <span class="\${isChecked ? 'text-slate-900 font-semibold' : 'text-slate-700 font-medium'} text-lg leading-relaxed">\${opt}</span>
                             </div>
-                            <span class="text-slate-700 leading-relaxed font-medium">\${opt}</span>
                         </div>
                     </label>
                 `;
             });
 
             container.innerHTML = `
-                <div class="mb-6">
-                    <h3 class="text-lg md:text-xl font-bold text-slate-800 leading-snug">\${currentQuestionIndex + 1}. \${q.question}</h3>
+                <div class="mb-8">
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-900 leading-snug">\${currentQuestionIndex + 1}. \${q.question}</h3>
                 </div>
-                <div>\${optionsHtml}</div>
+                <div class="space-y-3">\${optionsHtml}</div>
             `;
 
-            document.getElementById('question-tracker').textContent = \`SOAL \${currentQuestionIndex + 1} DARI \${currentQuestions.length}\`;
-            document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+            document.getElementById('question-tracker').textContent = \`SOAL \${currentQuestionIndex + 1} / \${currentQuestions.length}\`;
+            
+            const prevBtn = document.getElementById('prev-btn');
+            prevBtn.disabled = currentQuestionIndex === 0;
 
             const nextBtn = document.getElementById('next-btn');
             if (currentQuestionIndex === currentQuestions.length - 1) {
-                nextBtn.textContent = 'Kalkulasi Skor';
-                nextBtn.classList.remove('bg-slate-800', 'hover:bg-slate-700');
-                nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                nextBtn.innerHTML = 'Kalkulasi Skor <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+                nextBtn.classList.replace('bg-slate-900', 'bg-green-600');
+                nextBtn.classList.replace('hover:bg-slate-800', 'hover:bg-green-700');
             } else {
-                nextBtn.textContent = 'Selanjutnya';
-                nextBtn.classList.add('bg-slate-800', 'hover:bg-slate-700');
-                nextBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                nextBtn.innerHTML = 'Selanjutnya <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>';
+                nextBtn.classList.replace('bg-green-600', 'bg-slate-900');
+                nextBtn.classList.replace('hover:bg-green-700', 'hover:bg-slate-800');
             }
         }
 
         function selectOption(idx) {
             userAnswers[currentQuestionIndex] = idx;
-            renderQuestion();
+            renderQuestion(); // Re-render to show selected style
         }
 
         function nextQuestion() {
@@ -219,38 +285,47 @@
 
         function calculateResult() {
             score = 0;
-            let reviewHtml = '<div class="mt-6 border-t border-slate-200 pt-8"><h3 class="text-xl font-bold mb-6 text-slate-800">Analisis dan Penjelasan</h3><div class="space-y-6">';
+            let reviewHtml = '';
 
             currentQuestions.forEach((q, idx) => {
                 const userAns = userAnswers[idx];
                 const isCorrect = userAns === q.answer;
                 if (isCorrect) score++;
 
-                const bgClass = isCorrect ? 'bg-green-50/50 border-green-200' : 'bg-red-50/50 border-red-200';
-                const statusLabel = isCorrect 
-                    ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-green-700 bg-green-100 rounded-md">Jawaban Benar</span>' 
-                    : '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-md">Kesalahan Teori</span>';
+                const bgClass = isCorrect ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200';
+                const statusIcon = isCorrect 
+                    ? '<div class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-md text-xs font-bold uppercase flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Benar</div>' 
+                    : '<div class="bg-red-100 text-red-700 px-3 py-1 rounded-md text-xs font-bold uppercase flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Salah</div>';
 
-                let userAnsText = userAns !== undefined ? q.options[userAns] : '<i>(Tidak dijawab)</i>';
+                let userAnsText = userAns !== undefined ? q.options[userAns] : '<i class="text-slate-400">(Tidak dijawab)</i>';
 
                 reviewHtml += `
-                    <div class="p-5 border rounded-xl shadow-sm \${bgClass}">
-                        <div class="flex items-start justify-between gap-4 mb-3">
-                            <p class="font-bold text-slate-800 leading-snug">\${idx + 1}. \${q.question}</p>
-                            <div>\${statusLabel}</div>
+                    <div class="p-6 rounded-2xl border shadow-sm \${bgClass} mb-6">
+                        <div class="flex items-start justify-between gap-4 mb-4 border-b border-slate-200/50 pb-4">
+                            <p class="font-bold text-slate-800 text-lg leading-snug">\${idx + 1}. \${q.question}</p>
+                            <div class="flex-shrink-0">\${statusIcon}</div>
                         </div>
-                        <div class="pl-4 border-l-2 \${isCorrect ? 'border-green-400' : 'border-red-400'} mb-4 text-sm text-slate-700">
-                            Pilihan Anda: <strong class="\${isCorrect ? 'text-green-800' : 'text-red-800'}">\${userAnsText}</strong>
-                            \${!isCorrect ? \`<br>Jawaban Sistem: <strong class="text-green-700">\${q.options[q.answer]}</strong>\` : ''}
+                        <div class="space-y-2 mb-5">
+                            <div class="flex items-start gap-3">
+                                <span class="text-slate-500 text-sm font-semibold w-24 shrink-0 mt-0.5">Jawaban Anda</span>
+                                <span class="\${isCorrect ? 'text-emerald-700 font-semibold' : 'text-red-700 font-semibold'}">\${userAnsText}</span>
+                            </div>
+                            \${!isCorrect ? \`
+                            <div class="flex items-start gap-3">
+                                <span class="text-slate-500 text-sm font-semibold w-24 shrink-0 mt-0.5">Kunci Jawaban</span>
+                                <span class="text-emerald-700 font-semibold">\${q.options[q.answer]}</span>
+                            </div>\` : ''}
                         </div>
-                        <div class="bg-white p-4 rounded-lg border border-slate-200 text-sm text-slate-600 leading-relaxed shadow-sm">
-                            <strong class="text-slate-800 uppercase text-xs tracking-wider border-b border-slate-200 pb-1 mb-2 inline-block">Pembahasan Teknis</strong><br>
-                            \${q.explanation}
+                        <div class="bg-white/80 p-5 rounded-xl border border-slate-200/60 shadow-sm">
+                            <div class="flex items-center gap-2 mb-2 text-slate-800">
+                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <strong class="text-sm uppercase tracking-wider">Kajian Teoritis</strong>
+                            </div>
+                            <p class="text-sm text-slate-600 leading-relaxed">\${q.explanation}</p>
                         </div>
                     </div>
                 `;
             });
-            reviewHtml += '</div></div>';
 
             ui.quiz.classList.add('hidden');
             ui.result.classList.remove('hidden');
@@ -258,14 +333,19 @@
             document.getElementById('final-score').textContent = score;
             document.getElementById('max-score').textContent = currentQuestions.length;
             document.getElementById('review-container').innerHTML = reviewHtml;
+            
+            // Auto scroll to top of result
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function backToMenu() {
             ui.quiz.classList.add('hidden');
             ui.result.classList.add('hidden');
             ui.pkgList.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Initialize application
         initApp();
     </script>
 </body>
